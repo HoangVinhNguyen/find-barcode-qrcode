@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { BrowserMultiFormatReader, NotFoundException  } from '@zxing/library';
+import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
 
 const BarcodeScannerApp = () => {
   const [scannedBarcode, setScannedBarcode] = useState('');
@@ -8,6 +8,7 @@ const BarcodeScannerApp = () => {
   const reader = new BrowserMultiFormatReader();
 
   const handleScan = async () => {
+    setScannedBarcode('');
     try {
       const result = await reader.decodeFromVideoDevice(null, videoRef.current, (result, err) => {
         if (result) {
@@ -36,30 +37,78 @@ const BarcodeScannerApp = () => {
     }
   };
 
+  const widthWithoutScrollbar = window.innerWidth - document.documentElement.clientWidth;
+
   return (
-    <div>
+    <div className="scanner-container">
       <video
         ref={videoRef}
-        style={{ border: '1px solid black' ,
-        width: '300px',
-        height: '200px', // Đặt chiều cao bằng với chiều rộng để tạo hình vuông
-        objectFit: 'cover' // Đảm bảo video được phủ đầy khung hình mà không bị méo
-        }}
+        className="scanner-video"
       />
-      <button onClick={handleScan}>Bắt đầu quét</button>
-      <div>
+      <button className="scan-button" onClick={handleScan}>Bắt đầu quét</button>
+      <div className="input-group">
         <label>Mã quét được: </label>
-        <input type="text" value={scannedBarcode} readOnly />
+        <input type="text" value={scannedBarcode} readOnly className="scanned-barcode" />
       </div>
-      <div>
+      <div className="input-group">
         <label>Mã cần tìm: </label>
         <input
           type="text"
           value={targetBarcode}
           onChange={handleInputChange}
           style={getBorderStyle()}
+          className="target-barcode"
         />
       </div>
+      <style jsx>{`
+        .scanner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        }
+        .scanner-video {
+        border: 1px solid black;
+        width: 350px;
+        height: 250px;
+        object-fit: cover;
+        margin-bottom: 10px;
+        }
+        .scan-button {
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        }
+        .scan-button:hover {
+        background-color: #0056b3;
+        }
+        .input-group {
+        margin-bottom: 10px;
+        display: block;
+        }
+        .scanned-barcode, .target-barcode {
+        padding: 10px;
+        margin-left: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        display: block;
+        width: 100%;
+        }
+        .target-barcode {
+        animation: none;
+        }
+        .target-barcode:focus {
+        outline: none;
+        border-color: #66afe9;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        `}
+      </style>
     </div>
   );
 };
